@@ -17,7 +17,7 @@ Downloads/                          Downloads/
 - **Smart categorization.** Extension rules come first. For files with a missing or unknown extension, it falls back to the MIME type and then to the file's actual contents (magic bytes), so an extensionless PDF or PNG still lands in the right place.
 - **Duplicate handling.** Duplicates are detected by content (size match, then SHA-256), not by name. The oldest copy is kept. Extra copies are moved to `_Duplicates` (default), deleted, or left alone. Duplicates of files you organized in an earlier run are caught too.
 - **Safe by default.** `--dry-run` previews every change. Every run is logged, and `afm undo` puts files back where they were. Name clashes become `name (1).ext` instead of overwriting.
-- **Skips what it shouldn't touch.** Hidden files, symlinks, and in-progress downloads (`.crdownload`, `.part`, `.tmp`) are left alone. Empty files are never treated as duplicates.
+- **Skips what it shouldn't touch.** Hidden and system files (dotfiles, Windows Hidden/System attributes, `desktop.ini`, `Thumbs.db`), Office lock files (`~$...`), symlinks, and in-progress downloads (`.crdownload`, `.part`, `.tmp`) are left alone. Empty files are never treated as duplicates.
 - **Customizable.** Add or change categories with a small JSON file, and optionally sort into year or year/month subfolders.
 
 ## Install

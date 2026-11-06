@@ -67,3 +67,12 @@ def test_bad_config_rejected(tmp_path):
     cfg.write_text(json.dumps({"Images": ".png"}))
     with pytest.raises(ValueError):
         load_categories(cfg)
+
+
+def test_dlls_are_not_installers(tmp_path):
+    f = tmp_path / "gepard.dll"
+    f.write_bytes(b"MZ\x90\x00" + b"\x00" * 30)
+    assert Classifier().categorize(f) == "Other"
+    g = tmp_path / "setup.exe"
+    g.write_bytes(b"MZ\x90\x00" + b"\x00" * 30)
+    assert Classifier().categorize(g) == "Installers"

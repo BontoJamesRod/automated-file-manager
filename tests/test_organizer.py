@@ -205,3 +205,28 @@ def test_undo_skips_files_the_user_already_moved(tmp_path):
     (tmp_path / "Images" / "a.jpg").unlink()
     result = undo_last_run(tmp_path)
     assert result.restored == 0 and result.skipped == 1
+
+
+def test_skips_office_lock_files_and_system_files(tmp_path):
+    make(tmp_path, "~$report.docx", b"lock")
+    make(tmp_path, "desktop.ini", b"[.ShellClassInfo]")
+    make(tmp_path, "Thumbs.db", b"thumbs")
+    make(tmp_path, "report.docx", b"real")
+    Organizer(tmp_path).run()
+    assert names(tmp_path / "Documents") == ["report.docx"]
+    assert (tmp_path / "~$report.docx").exists()
+    assert (tmp_path / "desktop.ini").exists()
+    assert (tmp_path / "Thumbs.db").exists()
+    assert not (tmp_path / "Other").exists()
+
+
+def test_windows_hidden_and_system_attributes_detected():
+    import stat as stat_mod
+    from types import SimpleNamespace
+
+    from automated_file_manager.organizer import _has_hidden_attrs
+
+    assert _has_hidden_attrs(SimpleNamespace(st_file_attributes=stat_mod.FILE_ATTRIBUTE_HIDDEN))
+    assert _has_hidden_attrs(SimpleNamespace(st_file_attributes=stat_mod.FILE_ATTRIBUTE_SYSTEM))
+    assert not _has_hidden_attrs(SimpleNamespace(st_file_attributes=stat_mod.FILE_ATTRIBUTE_ARCHIVE))
+    assert not _has_hidden_attrs(SimpleNamespace())  # non-Windows stat results

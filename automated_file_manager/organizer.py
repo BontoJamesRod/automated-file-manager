@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import shutil
+import stat
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -19,6 +20,15 @@ PARTIAL_SUFFIXES = {".crdownload", ".part", ".partial", ".tmp", ".download"}
 
 DUPLICATE_MODES = ("move", "delete", "skip")
 DATE_MODES = ("none", "year", "month")
+
+# Files the OS or other programs own. Moving them is pointless at best and harmful at worst.
+SYSTEM_FILE_NAMES = {"desktop.ini", "thumbs.db"}
+
+
+def _has_hidden_attrs(st: os.stat_result) -> bool:
+    """True for Windows files flagged Hidden or System (always False on other platforms)."""
+    attrs = getattr(st, "st_file_attributes", 0)
+    return bool(attrs & (stat.FILE_ATTRIBUTE_HIDDEN | stat.FILE_ATTRIBUTE_SYSTEM))
 
 
 def file_hash(path: Path, chunk_size: int = 1 << 20) -> str:
@@ -105,11 +115,16 @@ class Organizer:
 
     def _eligible(self, path: Path) -> bool:
         name = path.name
-        if name.startswith(".") or name == LOG_NAME:
+        if name.startswith((".", "~$")) or name == LOG_NAME or name.lower() in SYSTEM_FILE_NAMES:
             return False
         if path.is_symlink() or not path.is_file():
             return False
-        return path.suffix.lower() not in PARTIAL_SUFFIXES
+        if path.suffix.lower() in PARTIAL_SUFFIXES:
+            return False
+        try:
+            return not _has_hidden_attrs(path.stat())
+        except OSError:
+            return False
 
     def _iter_files(self) -> Iterator[Path]:
         if not self.recursive:

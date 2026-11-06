@@ -45,7 +45,6 @@ _SIGNATURES = [
     (0, b"ID3", "Audio"),
     (0, b"OggS", "Audio"),
     (0, b"fLaC", "Audio"),
-    (0, b"MZ", "Installers"),
 ]
 
 _MIME_PREFIX = {
