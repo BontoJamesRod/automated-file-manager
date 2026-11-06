@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "automated-file-manager"
+version = "1.0.0"
+description = "Python automation tool that organizes files by type, with smart categorization and duplicate handling."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+afm = "automated_file_manager.cli:main"
+
+[tool.setuptools]
+packages = ["automated_file_manager"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
