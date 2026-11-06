@@ -1,5 +1,9 @@
 # automated-file-manager
 
+[![tests](https://github.com/BontoJamesRod/automated-file-manager/actions/workflows/tests.yml/badge.svg)](https://github.com/BontoJamesRod/automated-file-manager/actions/workflows/tests.yml)
+![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue)
+![License: MIT](https://img.shields.io/badge/license-MIT-green)
+
 Python automation tool that organizes files by type, with smart categorization and duplicate handling. No dependencies, just the standard library.
 
 ```
@@ -89,12 +93,18 @@ for action in report.actions:
 print(f"{report.duplicate_bytes} bytes taken by duplicates")
 ```
 
+## Project docs
+
+- [Requirements](docs/REQUIREMENTS.md): the problem, what the tool must do, what's out of scope, and which tests prove each requirement
+
 ## Development
 
 ```bash
 pip install -e ".[dev]"
-pytest
+python -m pytest
 ```
+
+Tests run automatically on Windows, macOS and Linux for every push.
 
 ## License
 

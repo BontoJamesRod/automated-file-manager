@@ -1,6 +1,8 @@
 import os
 import time
 
+import pytest
+
 from automated_file_manager import Organizer, undo_last_run
 from automated_file_manager.organizer import LOG_NAME
 
@@ -113,14 +115,23 @@ def test_second_run_is_noop(tmp_path):
     assert report.actions == []
 
 
-def test_skips_hidden_symlinks_and_partial_downloads(tmp_path):
+def test_skips_hidden_files_and_partial_downloads(tmp_path):
     make(tmp_path, ".hidden.jpg")
     make(tmp_path, "movie.mp4.crdownload")
     make(tmp_path, "real.jpg", b"x")
-    (tmp_path / "link.jpg").symlink_to(tmp_path / "real.jpg")
     Organizer(tmp_path).run()
     assert (tmp_path / ".hidden.jpg").exists()
     assert (tmp_path / "movie.mp4.crdownload").exists()
+    assert names(tmp_path / "Images") == ["real.jpg"]
+
+
+def test_skips_symlinks(tmp_path):
+    make(tmp_path, "real.jpg", b"x")
+    try:
+        (tmp_path / "link.jpg").symlink_to(tmp_path / "real.jpg")
+    except OSError:
+        pytest.skip("this system doesn't allow creating symlinks")
+    Organizer(tmp_path).run()
     assert (tmp_path / "link.jpg").is_symlink()
     assert names(tmp_path / "Images") == ["real.jpg"]
 

@@ -120,7 +120,18 @@ def _cmd_undo(args: argparse.Namespace) -> int:
     return 0
 
 
+def _safe_console() -> None:
+    # On Windows, output redirected to a file uses a legacy code page; a filename with an
+    # emoji or CJK character would otherwise crash the printout. Replace what can't be shown.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(errors="replace")
+        except (AttributeError, ValueError):
+            pass
+
+
 def main(argv: Optional[List[str]] = None) -> int:
+    _safe_console()
     args = build_parser().parse_args(argv)
     if args.command == "organize":
         return _cmd_organize(args)
